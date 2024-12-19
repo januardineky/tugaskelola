@@ -125,26 +125,36 @@ class TodoController extends Controller
         $client = new Client();
 
         try {
-            // Make the DELETE request
-            $response = $client->delete("https://api.sugity.kelola.biz/api/todo/", [
-                'form_params' => [
-                    'id' => $id
-                ]
-            ]);
+            // Make the DELETE request to the correct API endpoint
+            $response = $client->delete("https://api.sugity.kelola.biz/api/todo/$id");
 
             // Log the entire response for debugging
-            Log::info('API Response:', ['status' => $response->getStatusCode(), 'body' => $response->getBody()->getContents()]);
+            $responseBody = $response->getBody()->getContents();
+            Log::info('API Response:', [
+                'status' => $response->getStatusCode(),
+                'body' => $responseBody
+            ]);
 
             // Check if the response is successful
+            $body = json_decode($responseBody, true);  // Decode the response to check its structure
+
             if ($response->getStatusCode() == 200) {
-                return response()->json(['success' => true]);
+                if (isset($body['type']) && $body['type'] == 'success') {
+                    return redirect()->back()->with('success', 'Data deleted successfully');
+                }
+
+                // Log and return the error if the 'type' field is not 'success'
+                Log::error('Unexpected API response structure', ['response' => $body]);
+                return redirect()->back()->with('error', 'API did not return success message');
             } else {
-                return response()->json(['success' => false, 'error' => 'Unexpected status code: ' . $response->getStatusCode()], 500);
+                // Log and return an error if the status code is not 200
+                Log::error('Unexpected status code', ['status_code' => $response->getStatusCode()]);
+                return redirect()->back()->with('error', 'Unexpected status code: ' . $response->getStatusCode());
             }
         } catch (\Exception $e) {
             // Handle any exceptions
             Log::error('Error during API call', ['message' => $e->getMessage()]);
-            return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
+            return redirect()->back()->with('error', 'Error: ' . $e->getMessage());
         }
     }
 }

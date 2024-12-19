@@ -46,8 +46,8 @@
                             <i class="fas fa-edit"></i>
                         </a>
                         <!-- Delete Link -->
-                        <a href="/delete/{{ $todo['_id'] }}" class="btn btn-danger text-white" title="Delete" onclick="return confirmDelete(event, '{{ $todo['_id'] }}')">
-                            <i class="fas fa-trash"></i>
+                        <a href="/delete/{{ $todo['_id'] }}"class="btn btn-danger text-white"title="Delete" onclick="return confirm('Are you sure you want to delete this item?')">
+                             <i class="fas fa-trash"></i>
                         </a>
                     </td>
                 </tr>
@@ -130,31 +130,6 @@
                 $('#editTodoModal').modal('show');
             });
         }
-
-
-        function confirmDelete(event, todoId) {
-    event.preventDefault(); // Prevent the default link action (navigate to href)
-    if (confirm('Are you sure you want to delete this item?')) {
-        $.ajax({
-            url: '/delete/' + todoId,  // Your route to handle deletion
-            type: 'GET',  // You can use 'POST' if required on the server side
-            success: function(response) {
-                if (response.success) {
-                    alert('Todo deleted successfully');
-                    // Optionally, remove the row from the table after deletion
-                    $('#todoRow_' + todoId).remove();
-                } else {
-                    alert('Failed to delete the Todo');
-                }
-            },
-            error: function() {
-                alert('Error occurred while deleting the Todo');
-            }
-        });
-    }
-}
-
-
     </script>
 
 @endsection
