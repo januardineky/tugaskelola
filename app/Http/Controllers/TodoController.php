@@ -97,6 +97,7 @@ class TodoController extends Controller
         }
     }
 
+
     // Update the todo data
     public function update(Request $request, $id)
     {

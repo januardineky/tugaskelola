@@ -21,4 +21,5 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [TodoController::class, 'index']);
 Route::post('/add', [TodoController::class, 'store']);
 Route::get('/edit/{id}', [TodoController::class, 'edit']);
+Route::put('/update/{id}', [TodoController::class, 'update']);
 Route::get('/delete/{id}', [TodoController::class, 'delete']);

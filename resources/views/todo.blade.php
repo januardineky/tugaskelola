@@ -42,7 +42,7 @@
                     <td>{{ $todo['updated_at'] }}</td>
                     <td>
                         <!-- Edit Link -->
-                        <a href="/edit/{{ $todo['_id'] }}" class="btn btn-primary text-white p-2" title="Edit">
+                        <a href="#" class="btn btn-primary text-white p-2" title="Edit" onclick="openEditModal('{{ $todo['_id'] }}')">
                             <i class="fas fa-edit"></i>
                         </a>
                         <!-- Delete Link -->
@@ -95,7 +95,7 @@
                 <div class="modal-body">
                     <form id="editTodoForm" action="" method="POST">
                         @csrf
-                        @method('PUT')
+                        @method('PUT') <!-- This is important to indicate it's a PUT request -->
                         <div class="mb-3">
                             <label for="editTodoName" class="form-label">Todo Name</label>
                             <input type="text" class="form-control" id="editTodoName" name="todo" required>
@@ -116,20 +116,29 @@
 
     <script>
         // Open the modal for editing a todo item
-        function openEditModal(todoId) {
-            $.get(`/edit/${todoId}`, function(todo) {
-                if (todo.error) {
-                    alert(todo.error);
-                    return;
-                }
-
-                // Pre-fill the modal form with the todo data
-                $('#editTodoName').val(todo.todo);
-                $('#editCompleted').val(todo.completed);
-                $('#editTodoForm').attr('action', `/update/${todo._id}`);  // Ensure we use '_id' here
-                $('#editTodoModal').modal('show');
-            });
+function openEditModal(todoId) {
+    $.get(`/edit/${todoId}`, function(response) {
+        if (response.error) {
+            alert(response.error);
+            return;
         }
+
+        const todo = response.data.find(item => item._id === todoId); // Find the todo by _id
+
+        if (todo) {
+            // Pre-fill the modal form with the todo data
+            $('#editTodoName').val(todo.todo);
+            $('#editCompleted').val(todo.completed);
+            $('#editTodoForm').attr('action', `/update/${todo._id}`);  // Set the action URL for the PUT request
+            $('#editTodoModal').modal('show');
+        } else {
+            alert('Todo not found.');
+        }
+    }).fail(function() {
+        alert('Failed to fetch todo data.');
+    });
+}
+
     </script>
 
 @endsection
